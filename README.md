@@ -50,6 +50,8 @@ Realtime_ChatApp/
 
 ## ##Cách doawload dự án
 
+Link git :https://github.com/MinhNguyen592005/Realtime_Chatapp.git
+
 ## 3. Các Tính Năng Nổi Bật
 
 - **Xác thực & Bảo mật (JWT + BCrypt)**:
