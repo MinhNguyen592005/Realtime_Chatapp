@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 public class EmailService {
 
     public void sendOtpEmail(String toEmail, String otp) {
-        // Prominently log to console for instant local developer testing
         System.out.println("==================================================================");
         System.out.println("                 [REALTIME CHAT APP - EMAIL SERVICE]             ");
         System.out.println("  Đã gửi mã OTP đặt lại mật khẩu tới email: " + toEmail);

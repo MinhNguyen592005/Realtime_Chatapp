@@ -6,7 +6,7 @@
 
 - **Backend**: Spring Boot 3 (Java 21), Spring Security, Spring WebSocket (STOMP), Spring Data JPA.
 - **Frontend**: React 18, Vite, TailwindCSS, `@stomp/stompjs`, `sockjs-client`, `lucide-react`.
-- **Database**: MySQL (cấu hình tự động khởi tạo cơ sở dữ liệu `chatapp_db`) kèm profile H2 in-memory dự phòng.
+- **Database**: MySQL 
 - **Bảo mật & Xác thực**: JSON Web Token (JWT) được bảo vệ hai lớp trên cả HTTP REST APIs và STOMP WebSocket frames (`CONNECT`).
 
 ---
