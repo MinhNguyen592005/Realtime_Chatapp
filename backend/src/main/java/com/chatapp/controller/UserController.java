@@ -1,9 +1,12 @@
 package com.chatapp.controller;
 
+import com.chatapp.payload.UpdateProfileRequest;
+import com.chatapp.payload.UserProfileResponse;
 import com.chatapp.payload.UserSummary;
 import com.chatapp.security.UserPrincipal;
 import com.chatapp.service.UserService;
 import lombok.RequiredArgsConstructor;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +26,25 @@ public class UserController {
         return ResponseEntity.ok(userSummary);
     }
 
+    @GetMapping("/me/profile")
+    public ResponseEntity<UserProfileResponse> getMyProfile(@AuthenticationPrincipal UserPrincipal currentUser) {
+        return ResponseEntity.ok(userService.getProfile(currentUser.getId(), currentUser.getId()));
+    }
+
+    @PatchMapping("/me/profile")
+    public ResponseEntity<UserProfileResponse> updateMyProfile(
+            @AuthenticationPrincipal UserPrincipal currentUser,
+            @Valid @RequestBody UpdateProfileRequest request) {
+        return ResponseEntity.ok(userService.updateProfile(currentUser.getId(), request));
+    }
+
+    @GetMapping("/{userId}/profile")
+    public ResponseEntity<UserProfileResponse> getUserProfile(
+            @PathVariable Long userId,
+            @AuthenticationPrincipal UserPrincipal currentUser) {
+        return ResponseEntity.ok(userService.getProfile(userId, currentUser.getId()));
+    }
+
     @GetMapping
     public ResponseEntity<List<UserSummary>> searchUsers(
             @RequestParam(value = "query", required = false) String query,
@@ -32,4 +54,3 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 }
-

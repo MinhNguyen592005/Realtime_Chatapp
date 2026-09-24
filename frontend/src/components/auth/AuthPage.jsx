@@ -29,21 +29,18 @@ export default function AuthPage({ onAuthSuccess }) {
   const [loading, setLoading] = useState(false);
 
   // Validation regex
-  const EMAIL_REGEX = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}$/;
-  const SPECIAL_CHAR_REGEX = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/;
+  const EMAIL_REGEX = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,63}$/;
+  const PASSWORD_REGEX = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z0-9\s])\S{8,64}$/;
 
   const validatePasswordRule = (pwd) => {
-    if (!pwd || pwd.length < 8) {
-      return "Mật khẩu phải có ít nhất 8 ký tự.";
-    }
-    if (!SPECIAL_CHAR_REGEX.test(pwd)) {
-      return "Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt (!@#$%^&*...).";
+    if (!pwd || !PASSWORD_REGEX.test(pwd)) {
+      return "Mật khẩu phải dài 8-64 ký tự, có chữ cái, chữ số, ký tự đặc biệt và không có khoảng trắng.";
     }
     return null;
   };
 
   const validateEmailRule = (em) => {
-    if (!em || !EMAIL_REGEX.test(em.trim())) {
+    if (!em || em.trim().length > 100 || !EMAIL_REGEX.test(em.trim())) {
       return "Email không đúng định dạng (ví dụ: user@example.com).";
     }
     return null;
@@ -201,25 +198,25 @@ export default function AuthPage({ onAuthSuccess }) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950">
-      <div className="w-full max-w-md bg-slate-900/80 backdrop-blur-xl border border-slate-800/80 rounded-2xl shadow-2xl p-8 text-slate-100">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-white">
+      <div className="w-full max-w-md bg-white backdrop-blur-xl border border-slate-200 rounded-2xl shadow-2xl p-8 text-slate-900">
         {/* Brand Header */}
         <div className="flex flex-col items-center mb-6">
-          <div className="w-16 h-16 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center mb-3 shadow-inner">
-            <MessageSquare className="w-8 h-8 text-indigo-400" />
+          <div className="w-16 h-16 rounded-2xl bg-[#FEDBD0] border border-[#f4c5b6] flex items-center justify-center mb-3 shadow-inner">
+            <MessageSquare className="w-8 h-8 text-[#a6533e]" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 flex items-center gap-2">
             Realtime Chat{" "}
-            <Sparkles className="w-5 h-5 text-indigo-400 inline" />
+            <Sparkles className="w-5 h-5 text-[#a6533e] inline" />
           </h1>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-slate-500 mt-1">
             Hệ thống nhắn tin thời gian thực đa người dùng
           </p>
         </div>
 
         {/* Tab Toggle (Only shown on Login / Register) */}
         {(authMode === "login" || authMode === "register") && (
-          <div className="flex bg-slate-800/60 p-1 rounded-xl mb-6 border border-slate-700/50">
+          <div className="flex bg-slate-100 p-1 rounded-xl mb-6 border border-slate-200">
             <button
               type="button"
               onClick={() => {
@@ -229,8 +226,8 @@ export default function AuthPage({ onAuthSuccess }) {
               }}
               className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${
                 authMode === "login"
-                  ? "bg-indigo-600 text-white shadow-md"
-                  : "text-slate-400 hover:text-white"
+                  ? "bg-[#FEDBD0] text-slate-900 shadow-md"
+                  : "text-slate-500 hover:text-slate-900"
               }`}
             >
               Đăng Nhập
@@ -244,8 +241,8 @@ export default function AuthPage({ onAuthSuccess }) {
               }}
               className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${
                 authMode === "register"
-                  ? "bg-indigo-600 text-white shadow-md"
-                  : "text-slate-400 hover:text-white"
+                  ? "bg-[#FEDBD0] text-slate-900 shadow-md"
+                  : "text-slate-500 hover:text-slate-900"
               }`}
             >
               Đăng Ký
@@ -255,7 +252,7 @@ export default function AuthPage({ onAuthSuccess }) {
 
         {/* Success Alert */}
         {successMsg && (
-          <div className="mb-5 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs flex items-start gap-2.5">
+          <div className="mb-5 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 text-xs flex items-start gap-2.5">
             <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5" />
             <span>{successMsg}</span>
           </div>
@@ -263,7 +260,7 @@ export default function AuthPage({ onAuthSuccess }) {
 
         {/* Error Alert */}
         {error && (
-          <div className="mb-5 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs flex items-start gap-2.5">
+          <div className="mb-5 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-700 text-xs flex items-start gap-2.5">
             <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
             <span>{error}</span>
           </div>
@@ -273,25 +270,25 @@ export default function AuthPage({ onAuthSuccess }) {
         {authMode === "login" && (
           <form onSubmit={handleLoginSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
                 Tên đăng nhập
               </label>
               <div className="relative">
-                <User className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <User className="w-5 h-5 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   required
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="Nhập tên đăng nhập..."
-                  className="w-full pl-11 pr-4 py-2.5 bg-slate-800/80 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors text-sm"
+                  className="w-full pl-11 pr-4 py-2.5 bg-white border border-slate-300 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#c47c68] focus:ring-1 focus:ring-[#c47c68] transition-colors text-sm"
                 />
               </div>
             </div>
 
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <label className="text-xs font-semibold text-slate-700 uppercase tracking-wider">
                   Mật khẩu
                 </label>
                 <button
@@ -301,20 +298,20 @@ export default function AuthPage({ onAuthSuccess }) {
                     setError("");
                     setSuccessMsg("");
                   }}
-                  className="text-xs text-indigo-400 hover:text-indigo-300 hover:underline"
+                  className="text-xs text-[#a6533e] hover:text-[#a6533e] hover:underline"
                 >
                   Quên mật khẩu?
                 </button>
               </div>
               <div className="relative">
-                <Lock className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <Lock className="w-5 h-5 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full pl-11 pr-4 py-2.5 bg-slate-800/80 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors text-sm"
+                  className="w-full pl-11 pr-4 py-2.5 bg-white border border-slate-300 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#c47c68] focus:ring-1 focus:ring-[#c47c68] transition-colors text-sm"
                 />
               </div>
             </div>
@@ -322,10 +319,10 @@ export default function AuthPage({ onAuthSuccess }) {
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-2 py-3 px-4 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl shadow-lg shadow-indigo-600/30 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm"
+              className="w-full mt-2 py-3 px-4 bg-[#FEDBD0] hover:bg-[#f4c5b6] text-slate-900 font-semibold rounded-xl shadow-lg shadow-[#f4c5b6]/30 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm"
             >
               {loading ? (
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <div className="w-5 h-5 border-2 border-slate-900/30 border-t-slate-900 rounded-full animate-spin" />
               ) : (
                 "Đăng Nhập"
               )}
@@ -337,67 +334,67 @@ export default function AuthPage({ onAuthSuccess }) {
         {authMode === "register" && (
           <form onSubmit={handleRegisterSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
                 Tên đăng nhập
               </label>
               <div className="relative">
-                <User className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <User className="w-5 h-5 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   required
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="Từ 3 đến 50 ký tự..."
-                  className="w-full pl-11 pr-4 py-2.5 bg-slate-800/80 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors text-sm"
+                  className="w-full pl-11 pr-4 py-2.5 bg-white border border-slate-300 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#c47c68] focus:ring-1 focus:ring-[#c47c68] transition-colors text-sm"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
                 Email
               </label>
               <div className="relative">
-                <Mail className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <Mail className="w-5 h-5 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="user@example.com"
-                  className="w-full pl-11 pr-4 py-2.5 bg-slate-800/80 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors text-sm"
+                  className="w-full pl-11 pr-4 py-2.5 bg-white border border-slate-300 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#c47c68] focus:ring-1 focus:ring-[#c47c68] transition-colors text-sm"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
                 Mật khẩu
               </label>
               <div className="relative">
-                <Lock className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <Lock className="w-5 h-5 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Ít nhất 8 ký tự và 1 ký tự đặc biệt (!@#$...)"
-                  className="w-full pl-11 pr-4 py-2.5 bg-slate-800/80 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-colors text-sm"
+                  placeholder="8-64 ký tự, gồm chữ, số và ký tự đặc biệt"
+                  className="w-full pl-11 pr-4 py-2.5 bg-white border border-slate-300 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#c47c68] focus:ring-1 focus:ring-[#c47c68] transition-colors text-sm"
                 />
               </div>
-              <p className="text-[11px] text-slate-400 mt-1.5">
-                * Quy định: Mật khẩu từ 8 ký tự trở lên và phải có ít nhất 1 ký
-                tự đặc biệt.
+              <p className="text-[11px] text-slate-500 mt-1.5">
+                * Quy định: 8-64 ký tự, gồm chữ cái, chữ số, ký tự đặc biệt và
+                không có khoảng trắng.
               </p>
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-2 py-3 px-4 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl shadow-lg shadow-indigo-600/30 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm"
+              className="w-full mt-2 py-3 px-4 bg-[#FEDBD0] hover:bg-[#f4c5b6] text-slate-900 font-semibold rounded-xl shadow-lg shadow-[#f4c5b6]/30 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm"
             >
               {loading ? (
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <div className="w-5 h-5 border-2 border-slate-900/30 border-t-slate-900 rounded-full animate-spin" />
               ) : (
                 "Tạo Tài Khoản"
               )}
@@ -409,27 +406,27 @@ export default function AuthPage({ onAuthSuccess }) {
         {authMode === "forgot" && (
           <form onSubmit={handleForgotPasswordSubmit} className="space-y-4">
             <div className="text-center mb-4">
-              <h3 className="text-base font-semibold text-white">
+              <h3 className="text-base font-semibold text-slate-900">
                 Khôi Phục Mật Khẩu
               </h3>
-              <p className="text-xs text-slate-400 mt-1">
+              <p className="text-xs text-slate-500 mt-1">
                 Nhập email tài khoản của bạn để nhận mã xác thực OTP 6 số.
               </p>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
                 Email tài khoản
               </label>
               <div className="relative">
-                <Mail className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <Mail className="w-5 h-5 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="user@example.com"
-                  className="w-full pl-11 pr-4 py-2.5 bg-slate-800/80 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 text-sm"
+                  className="w-full pl-11 pr-4 py-2.5 bg-white border border-slate-300 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#c47c68] text-sm"
                 />
               </div>
             </div>
@@ -437,10 +434,10 @@ export default function AuthPage({ onAuthSuccess }) {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl shadow-lg shadow-indigo-600/30 transition disabled:opacity-50 text-sm flex items-center justify-center gap-2"
+              className="w-full py-3 px-4 bg-[#FEDBD0] hover:bg-[#f4c5b6] text-slate-900 font-semibold rounded-xl shadow-lg shadow-[#f4c5b6]/30 transition disabled:opacity-50 text-sm flex items-center justify-center gap-2"
             >
               {loading ? (
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <div className="w-5 h-5 border-2 border-slate-900/30 border-t-slate-900 rounded-full animate-spin" />
               ) : (
                 "Gửi Mã Xác Nhận"
               )}
@@ -453,7 +450,7 @@ export default function AuthPage({ onAuthSuccess }) {
                 setError("");
                 setSuccessMsg("");
               }}
-              className="w-full py-2 text-xs font-medium text-slate-400 hover:text-white flex items-center justify-center gap-1 transition"
+              className="w-full py-2 text-xs font-medium text-slate-500 hover:text-slate-900 flex items-center justify-center gap-1 transition"
             >
               <ArrowLeft className="w-3.5 h-3.5" /> Quay lại Đăng nhập
             </button>
@@ -464,21 +461,21 @@ export default function AuthPage({ onAuthSuccess }) {
         {authMode === "reset" && (
           <form onSubmit={handleResetPasswordSubmit} className="space-y-4">
             <div className="text-center mb-4">
-              <h3 className="text-base font-semibold text-white">
+              <h3 className="text-base font-semibold text-slate-900">
                 Nhập Mã OTP & Mật Khẩu Mới
               </h3>
-              <p className="text-xs text-slate-400 mt-1">
+              <p className="text-xs text-slate-500 mt-1">
                 Mã OTP 6 số đã được gửi tới:{" "}
-                <strong className="text-indigo-300">{email}</strong>
+                <strong className="text-[#a6533e]">{email}</strong>
               </p>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
                 Mã xác thực OTP (6 chữ số)
               </label>
               <div className="relative">
-                <KeyRound className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <KeyRound className="w-5 h-5 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   maxLength={6}
@@ -486,38 +483,38 @@ export default function AuthPage({ onAuthSuccess }) {
                   value={otp}
                   onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
                   placeholder="123456"
-                  className="w-full pl-11 pr-4 py-2.5 bg-slate-800/80 border border-slate-700 rounded-xl text-white placeholder-slate-500 tracking-widest text-center font-mono text-base focus:outline-none focus:border-indigo-500"
+                  className="w-full pl-11 pr-4 py-2.5 bg-white border border-slate-300 rounded-xl text-slate-900 placeholder-slate-400 tracking-widest text-center font-mono text-base focus:outline-none focus:border-[#c47c68]"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
                 Mật khẩu mới
               </label>
               <div className="relative">
-                <Lock className="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <Lock className="w-5 h-5 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="password"
                   required
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Ít nhất 8 ký tự và 1 ký tự đặc biệt..."
-                  className="w-full pl-11 pr-4 py-2.5 bg-slate-800/80 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 text-sm"
+                  placeholder="8-64 ký tự, gồm chữ, số và ký tự đặc biệt"
+                  className="w-full pl-11 pr-4 py-2.5 bg-white border border-slate-300 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#c47c68] text-sm"
                 />
               </div>
-              <p className="text-[11px] text-slate-400 mt-1">
-                * Tối thiểu 8 ký tự và có ít nhất 1 ký tự đặc biệt (!@#$...).
+              <p className="text-[11px] text-slate-500 mt-1">
+                * 8-64 ký tự, gồm chữ cái, chữ số, ký tự đặc biệt và không có khoảng trắng.
               </p>
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl shadow-lg shadow-indigo-600/30 transition disabled:opacity-50 text-sm flex items-center justify-center gap-2"
+              className="w-full py-3 px-4 bg-[#FEDBD0] hover:bg-[#f4c5b6] text-slate-900 font-semibold rounded-xl shadow-lg shadow-[#f4c5b6]/30 transition disabled:opacity-50 text-sm flex items-center justify-center gap-2"
             >
               {loading ? (
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <div className="w-5 h-5 border-2 border-slate-900/30 border-t-slate-900 rounded-full animate-spin" />
               ) : (
                 "Xác Nhận Đổi Mật Khẩu"
               )}
@@ -530,7 +527,7 @@ export default function AuthPage({ onAuthSuccess }) {
                 setError("");
                 setSuccessMsg("");
               }}
-              className="w-full py-2 text-xs font-medium text-slate-400 hover:text-white flex items-center justify-center gap-1 transition"
+              className="w-full py-2 text-xs font-medium text-slate-500 hover:text-slate-900 flex items-center justify-center gap-1 transition"
             >
               <ArrowLeft className="w-3.5 h-3.5" /> Quay lại Đăng nhập
             </button>

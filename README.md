@@ -78,8 +78,7 @@ Link git :https://github.com/MinhNguyen592005/Realtime_Chatapp.git
 ### Bước 1: Chuẩn bị Cơ sở dữ liệu (MySQL)
 
 - Đảm bảo MySQL server đang chạy trên máy (`localhost:3306`).
-- Tài khoản mặc định trong `backend/src/main/resources/application.yml`:
-  - **User**: `root` | **Password**: `root` _(có thể đổi theo máy của bạn)_.
+- Tài khoản database mặc định là `root`; đặt mật khẩu của máy bạn trong `backend/local-secrets.properties` (file này được Git bỏ qua). Sao chép từ `backend/local-secrets.properties.example`, rồi điền `spring.datasource.password` và khóa JWT Base64 tối thiểu 32 byte vào `app.jwt.secret`. Có thể dùng biến môi trường `DB_PASSWORD` và `JWT_SECRET` thay cho file riêng.
   - Cơ sở dữ liệu `chatapp_db` sẽ được backend tự tạo tự động khi chạy.
 
 > 💡 **Mẹo:** Nếu bạn chưa bật MySQL và muốn kiểm thử ngay lập tức, bạn có thể chạy Backend bằng profile H2 in-memory:
@@ -91,8 +90,7 @@ Link git :https://github.com/MinhNguyen592005/Realtime_Chatapp.git
 
 ### Bước 2: Khởi chạy Backend (Spring Boot)
 
-- **Cách 1**: Nhấp đúp vào file `start-backend.bat`.
-- **Cách 2**: Mở terminal tại thư mục dự án và chạy:
+- Mở terminal tại thư mục dự án và chạy:
   ```bash
   cd backend
   mvn spring-boot:run
@@ -101,8 +99,7 @@ Link git :https://github.com/MinhNguyen592005/Realtime_Chatapp.git
 
 ### Bước 3: Khởi chạy Frontend (React)
 
-- **Cách 1**: Nhấp đúp vào file `start-frontend.bat`.
-- **Cách 2**: Mở một cửa sổ terminal mới và chạy:
+- Mở một cửa sổ terminal mới và chạy:
   ```bash
   cd frontend
   npm install

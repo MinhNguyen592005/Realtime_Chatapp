@@ -4,13 +4,31 @@ server:
 spring:
   application:
     name: realtime-chatapp
+  config:
+    import: "optional:file:./mail-local.properties,optional:file:./backend/mail-local.properties,optional:file:./local-secrets.properties,optional:file:./backend/local-secrets.properties"
   profiles:
     active: mysql
+
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
 
   datasource:
     url: jdbc:mysql://localhost:3306/chatapp_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
     username: root
-    password: 12345
+    password: ${DB_PASSWORD:}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -23,9 +41,11 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
 
 app:
+  mail:
+    from: ${MAIL_FROM:}
   jwt:
     # 256-bit base64 secret key
-    secret: dGhpc0lzQVNlY3VyZUtleUZvclJlYWx0aW1lQ2hhdEFwcDIwMjZKV1RNYXN0ZXJLZXk=
+    secret: ${JWT_SECRET:}
     expiration-ms: 86400000 # 24 hours
   cors:
     allowed-origins: "http://localhost:5173,http://localhost:3000"

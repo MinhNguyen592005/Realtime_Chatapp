@@ -23,16 +23,20 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Random;
+import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
+
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+    private static final int MAX_RESET_ATTEMPTS = 5;
 
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
@@ -45,7 +49,11 @@ public class AuthService {
     @Transactional
     public UserSummary register(RegisterRequest request) {
         String username = request.getUsername().trim();
-        String email = request.getEmail().trim().toLowerCase();
+        String email = request.getEmail().trim().toLowerCase(Locale.ROOT);
+
+        if (username.length() < 3 || username.length() > 50) {
+            throw new IllegalArgumentException("Tên đăng nhập phải có từ 3 đến 50 ký tự.");
+        }
 
         if (userRepository.existsByUsername(username)) {
             throw new IllegalArgumentException("Tên đăng nhập '" + username + "' đã có người sử dụng. Vui lòng chọn tên khác.");
@@ -97,6 +105,7 @@ public class AuthService {
             UserSummary summary = UserSummary.builder()
                     .id(userPrincipal.getId())
                     .username(userPrincipal.getUsername())
+                    .displayName(userPrincipal.getDisplayName())
                     .email(userPrincipal.getEmail())
                     .avatarUrl(userPrincipal.getAvatarUrl())
                     .status(UserStatus.ONLINE)
@@ -115,52 +124,75 @@ public class AuthService {
 
     @Transactional
     public void forgotPassword(String email) {
-        String cleanEmail = email.trim().toLowerCase();
-        User user = userRepository.findByEmail(cleanEmail)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản nào với địa chỉ email: " + cleanEmail));
+        String cleanEmail = email.trim().toLowerCase(Locale.ROOT);
+        userRepository.findByEmail(cleanEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản với email này."));
 
-        // Generate 6-digit random numeric OTP
-        String otp = String.format("%06d", new Random().nextInt(1000000));
+        String otp = String.format(Locale.ROOT, "%06d", SECURE_RANDOM.nextInt(1_000_000));
 
+        // A newly requested code replaces every older unused code for this email.
+        passwordResetTokenRepository.invalidateActiveTokens(cleanEmail);
         PasswordResetToken token = PasswordResetToken.builder()
                 .email(cleanEmail)
                 .otp(otp)
                 .expiryDate(LocalDateTime.now().plusMinutes(15))
                 .used(false)
                 .build();
-
-        passwordResetTokenRepository.save(token);
-
-        // Send OTP via Email / Console notification
+        // Only delivered codes are persisted. A failed send rolls back the old-code invalidation.
         emailService.sendOtpEmail(cleanEmail, otp);
+        token.setSentAt(LocalDateTime.now());
+        passwordResetTokenRepository.save(token);
     }
 
-    @Transactional
+    @Transactional(noRollbackFor = IllegalArgumentException.class)
     public void resetPassword(String email, String otp, String newPassword) {
-        String cleanEmail = email.trim().toLowerCase();
+        String cleanEmail = email.trim().toLowerCase(Locale.ROOT);
         String cleanOtp = otp.trim();
 
         PasswordResetToken resetToken = passwordResetTokenRepository
-                .findTopByEmailAndOtpAndUsedFalse(cleanEmail, cleanOtp)
+                .findTopByEmailAndUsedFalseAndSentAtIsNotNullOrderByIdDesc(cleanEmail)
                 .orElseThrow(() -> new IllegalArgumentException("Mã OTP không chính xác hoặc đã được sử dụng."));
 
-        if (resetToken.getExpiryDate().isBefore(LocalDateTime.now())) {
-            throw new IllegalArgumentException("Mã OTP đã hết hiệu lực (chỉ có giá trị trong 15 phút). Vui lòng yêu cầu mã mới.");
+        if (!resetToken.getExpiryDate().isAfter(LocalDateTime.now())) {
+            resetToken.setUsed(true);
+            passwordResetTokenRepository.save(resetToken);
+            throw new IllegalArgumentException("Mã OTP đã hết hiệu lực. Vui lòng yêu cầu mã mới.");
+        }
+
+        if (!resetToken.getOtp().equals(cleanOtp)) {
+            int previousAttempts = resetToken.getFailedAttempts() == null ? 0 : resetToken.getFailedAttempts();
+            int failedAttempts = previousAttempts + 1;
+            resetToken.setFailedAttempts(failedAttempts);
+            if (failedAttempts >= MAX_RESET_ATTEMPTS) {
+                resetToken.setUsed(true);
+            }
+            passwordResetTokenRepository.save(resetToken);
+            throw new IllegalArgumentException(
+                    failedAttempts >= MAX_RESET_ATTEMPTS
+                            ? "Bạn đã nhập sai quá 5 lần. Vui lòng yêu cầu mã mới."
+                            : "Mã OTP không chính xác."
+            );
         }
 
         User user = userRepository.findByEmail(cleanEmail)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tài khoản với email này."));
 
-        // Update password
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
 
-        // Mark token as used
         resetToken.setUsed(true);
         passwordResetTokenRepository.save(resetToken);
     }
 
     public static UserSummary mapToUserSummary(User user) {
+        return mapToUserSummary(user, true);
+    }
+
+    public static UserSummary mapToPublicUserSummary(User user) {
+        return mapToUserSummary(user, false);
+    }
+
+    private static UserSummary mapToUserSummary(User user, boolean includeEmail) {
         Set<String> roleNames = user.getRoles() != null
                 ? user.getRoles().stream().map(r -> r.getName().name()).collect(Collectors.toSet())
                 : Collections.emptySet();
@@ -168,7 +200,8 @@ public class AuthService {
         return UserSummary.builder()
                 .id(user.getId())
                 .username(user.getUsername())
-                .email(user.getEmail())
+                .displayName(user.getDisplayName())
+                .email(includeEmail ? user.getEmail() : null)
                 .avatarUrl(user.getAvatarUrl())
                 .status(user.getStatus())
                 .roles(roleNames)

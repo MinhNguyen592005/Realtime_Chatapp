@@ -1,7 +1,8 @@
 package com.chatapp.payload;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,10 +11,7 @@ import lombok.Setter;
 public class ForgotPasswordRequest {
 
     @NotBlank(message = "Email không được để trống")
-    @Pattern(
-        regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$",
-        message = "Email không đúng định dạng (ví dụ: user@example.com)"
-    )
+    @Email(regexp = AuthValidation.EMAIL_REGEX, message = "Email không đúng định dạng")
+    @Size(max = 100, message = "Email không được vượt quá 100 ký tự")
     private String email;
 }
-

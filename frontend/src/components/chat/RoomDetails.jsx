@@ -7,6 +7,7 @@ import {
   Users,
   Calendar,
   AlertCircle,
+  Palette,
 } from "lucide-react";
 import { chatService } from "../../services/chatService";
 
@@ -16,6 +17,10 @@ export default function RoomDetails({
   onClose,
   onMemberUpdated,
   onRoomLeft,
+  appearance,
+  onAppearanceChange,
+  onAppearanceReset,
+  onOpenProfile,
 }) {
   const [showAddMember, setShowAddMember] = useState(false);
   const [availableUsers, setAvailableUsers] = useState([]);
@@ -92,13 +97,13 @@ export default function RoomDetails({
   };
 
   return (
-    <div className="w-80 h-full bg-slate-900/90 border-l border-slate-800 flex flex-col text-slate-200 shrink-0">
+    <div className="w-80 h-full bg-white border-l border-slate-200 flex flex-col text-slate-800 shrink-0">
       {/* Header */}
-      <div className="p-4 border-b border-slate-800 flex items-center justify-between">
-        <h3 className="font-semibold text-sm text-white">Room Details</h3>
+      <div className="p-4 border-b border-slate-200 flex items-center justify-between">
+        <h3 className="font-semibold text-sm text-slate-900">Room Details</h3>
         <button
           onClick={onClose}
-          className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
+          className="p-1 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100"
         >
           <X className="w-4 h-4" />
         </button>
@@ -106,34 +111,85 @@ export default function RoomDetails({
 
       <div className="flex-1 overflow-y-auto p-4 space-y-6">
         {/* Info card */}
-        <div className="text-center pb-4 border-b border-slate-800">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 mx-auto mb-3 flex items-center justify-center text-white shadow-lg">
+        <div className="text-center pb-4 border-b border-slate-200">
+          <div className="w-16 h-16 rounded-2xl bg-[#FEDBD0] mx-auto mb-3 flex items-center justify-center text-slate-800 shadow-sm">
             <Users className="w-8 h-8" />
           </div>
-          <h4 className="font-bold text-white text-base truncate">
+          <h4 className="font-bold text-slate-900 text-base truncate">
             {room.name}
           </h4>
-          <span className="inline-block mt-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+          <span className="inline-block mt-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#FEDBD0] text-slate-700 border border-[#f4c5b6]">
             {room.type} CHAT
           </span>
           {room.createdAt && (
-            <p className="text-[11px] text-slate-400 mt-2 flex items-center justify-center gap-1">
+            <p className="text-[11px] text-slate-500 mt-2 flex items-center justify-center gap-1">
               <Calendar className="w-3.5 h-3.5" /> Created{" "}
               {new Date(room.createdAt).toLocaleDateString()}
             </p>
           )}
         </div>
 
+        {/* Per-room chat colors */}
+        <div className="pb-4 border-b border-slate-200">
+          <div className="flex items-center justify-between mb-3">
+            <h5 className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+              <Palette className="w-4 h-4" /> Appearance
+            </h5>
+            <button
+              type="button"
+              onClick={onAppearanceReset}
+              className="text-xs font-medium text-[#a6533e] hover:text-[#873f2e]"
+            >
+              Reset
+            </button>
+          </div>
+          <div className="space-y-3">
+            <label className="flex items-center justify-between gap-3 text-xs text-slate-700">
+              <span>Message color</span>
+              <span className="flex items-center gap-2 font-mono text-slate-500">
+                {appearance.messageColor.toUpperCase()}
+                <input
+                  type="color"
+                  value={appearance.messageColor}
+                  onChange={(event) =>
+                    onAppearanceChange("messageColor", event.target.value)
+                  }
+                  className="w-11 h-9 p-1 rounded-lg border border-slate-300 bg-white cursor-pointer"
+                  aria-label="Message color"
+                />
+              </span>
+            </label>
+            <label className="flex items-center justify-between gap-3 text-xs text-slate-700">
+              <span>Chat background</span>
+              <span className="flex items-center gap-2 font-mono text-slate-500">
+                {appearance.backgroundColor.toUpperCase()}
+                <input
+                  type="color"
+                  value={appearance.backgroundColor}
+                  onChange={(event) =>
+                    onAppearanceChange("backgroundColor", event.target.value)
+                  }
+                  className="w-11 h-9 p-1 rounded-lg border border-slate-300 bg-white cursor-pointer"
+                  aria-label="Chat background color"
+                />
+              </span>
+            </label>
+          </div>
+          <p className="mt-3 text-[11px] text-slate-500">
+            Colors are saved for this room on this browser.
+          </p>
+        </div>
+
         {/* Members section */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h5 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+            <h5 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
               Members ({room.members?.length || 0})
             </h5>
             {isGroup && isAdmin && (
               <button
                 onClick={handleOpenAdd}
-                className="text-xs text-indigo-400 hover:text-indigo-300 flex items-center gap-1 font-medium"
+                className="text-xs text-[#a6533e] hover:text-[#873f2e] flex items-center gap-1 font-medium"
               >
                 <UserPlus className="w-3.5 h-3.5" /> Add
               </button>
@@ -151,9 +207,9 @@ export default function RoomDetails({
           {showAddMember && (
             <form
               onSubmit={handleAddMember}
-              className="p-3 bg-slate-800/80 rounded-xl mb-3 border border-slate-700"
+              className="p-3 bg-slate-50 rounded-xl mb-3 border border-slate-200"
             >
-              <label className="block text-xs font-medium text-slate-300 mb-1.5">
+              <label className="block text-xs font-medium text-slate-700 mb-1.5">
                 Select User
               </label>
               {availableUsers.length === 0 ? (
@@ -164,11 +220,11 @@ export default function RoomDetails({
                 <select
                   value={selectedUserId}
                   onChange={(e) => setSelectedUserId(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white mb-2 focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 mb-2 focus:outline-none focus:border-[#c47c68]"
                 >
                   {availableUsers.map((u) => (
                     <option key={u.id} value={u.id}>
-                      {u.username} ({u.email})
+                      {u.displayName || u.username} (@{u.username})
                     </option>
                   ))}
                 </select>
@@ -177,14 +233,14 @@ export default function RoomDetails({
                 <button
                   type="button"
                   onClick={() => setShowAddMember(false)}
-                  className="px-2.5 py-1 text-xs text-slate-400 hover:text-white"
+                  className="px-2.5 py-1 text-xs text-slate-500 hover:text-slate-900"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={loading || availableUsers.length === 0}
-                  className="px-3 py-1 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium rounded-lg disabled:opacity-50"
+                  className="px-3 py-1 bg-[#FEDBD0] hover:bg-[#f4c5b6] text-slate-900 text-xs font-medium rounded-lg disabled:opacity-50"
                 >
                   {loading ? "Adding..." : "Add"}
                 </button>
@@ -202,9 +258,10 @@ export default function RoomDetails({
               return (
                 <div
                   key={member.id}
-                  className="flex items-center justify-between p-2 rounded-xl bg-slate-800/50 border border-slate-800/80"
+                  className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-200"
                 >
-                  <div className="flex items-center gap-2.5 min-w-0">
+                  <button type="button" onClick={() => onOpenProfile(member.userId)} title="Xem trang cá nhân"
+                    className="flex items-center gap-2.5 min-w-0 text-left hover:opacity-75">
                     <div className="relative shrink-0">
                       <img
                         src={
@@ -212,10 +269,10 @@ export default function RoomDetails({
                           `https://api.dicebear.com/7.x/bottts/svg?seed=${member.username}`
                         }
                         alt={member.username}
-                        className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700"
+                        className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200"
                       />
                       <span
-                        className={`absolute bottom-0 right-0 w-2 h-2 rounded-full ring-2 ring-slate-900 ${
+                        className={`absolute bottom-0 right-0 w-2 h-2 rounded-full ring-2 ring-white ${
                           member.status === "ONLINE"
                             ? "bg-emerald-500"
                             : "bg-slate-500"
@@ -223,25 +280,25 @@ export default function RoomDetails({
                       />
                     </div>
                     <div className="truncate">
-                      <div className="text-xs font-semibold text-white truncate flex items-center gap-1">
-                        {member.username}
+                      <div className="text-xs font-semibold text-slate-900 truncate flex items-center gap-1">
+                        {member.displayName || member.username}
                         {member.userId === currentUser.id && (
-                          <span className="text-[10px] text-slate-400 font-normal">
+                          <span className="text-[10px] text-slate-500 font-normal">
                             (You)
                           </span>
                         )}
                       </div>
-                      <div className="text-[10px] text-slate-400 truncate flex items-center gap-1">
+                      <div className="text-[10px] text-slate-500 truncate flex items-center gap-1">
                         {isMemberAdmin ? (
-                          <span className="text-amber-400 flex items-center gap-0.5 font-medium">
+                          <span className="text-amber-700 flex items-center gap-0.5 font-medium">
                             <Shield className="w-3 h-3" /> Admin
                           </span>
                         ) : (
-                          <span>Member</span>
+                          <span>@{member.username}</span>
                         )}
                       </div>
                     </div>
-                  </div>
+                  </button>
 
                   {canKick && (
                     <button
@@ -260,7 +317,7 @@ export default function RoomDetails({
 
         {/* Leave Room Action */}
         {isGroup && (
-          <div className="pt-4 border-t border-slate-800">
+          <div className="pt-4 border-t border-slate-200">
             <button
               onClick={handleLeaveRoom}
               className="w-full py-2 px-3 rounded-xl border border-red-500/30 text-red-400 hover:bg-red-500/10 text-xs font-medium transition"

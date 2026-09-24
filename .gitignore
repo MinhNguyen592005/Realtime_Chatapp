@@ -3,6 +3,10 @@ build/
 dist/
 .env
 .env.*
+AGENTS.md
+backend/MAIL_SETUP.md
+backend/mail-local.properties*
+backend/local-secrets.properties
 .idea/
 .vscode/
 npm-debug.log*

@@ -199,7 +199,9 @@ public class RoomService {
             Optional<RoomMember> other = members.stream()
                     .filter(m -> !m.getUser().getId().equals(currentUserId))
                     .findFirst();
-            displayName = other.map(m -> m.getUser().getUsername()).orElse("Direct Chat");
+            displayName = other.map(m -> m.getUser().getDisplayName() == null
+                    || m.getUser().getDisplayName().isBlank()
+                    ? m.getUser().getUsername() : m.getUser().getDisplayName()).orElse("Direct Chat");
         }
 
         Optional<Message> lastMessageOpt = messageRepository.findLastMessageByRoomId(room.getId());
@@ -209,7 +211,7 @@ public class RoomService {
                 .id(room.getId())
                 .name(displayName)
                 .type(room.getType())
-                .createdBy(room.getCreatedBy() != null ? AuthService.mapToUserSummary(room.getCreatedBy()) : null)
+                .createdBy(room.getCreatedBy() != null ? AuthService.mapToPublicUserSummary(room.getCreatedBy()) : null)
                 .createdAt(room.getCreatedAt())
                 .members(memberResponses)
                 .lastMessage(lastMessage)
@@ -222,7 +224,7 @@ public class RoomService {
                 .id(rm.getId())
                 .userId(u.getId())
                 .username(u.getUsername())
-                .email(u.getEmail())
+                .displayName(u.getDisplayName())
                 .avatarUrl(u.getAvatarUrl())
                 .status(u.getStatus())
                 .role(rm.getRole())
@@ -234,7 +236,7 @@ public class RoomService {
         return MessageResponse.builder()
                 .id(message.getId())
                 .roomId(message.getRoom().getId())
-                .sender(message.getSender() != null ? AuthService.mapToUserSummary(message.getSender()) : null)
+                .sender(message.getSender() != null ? AuthService.mapToPublicUserSummary(message.getSender()) : null)
                 .content(message.getContent())
                 .messageType(message.getMessageType())
                 .createdAt(message.getCreatedAt())

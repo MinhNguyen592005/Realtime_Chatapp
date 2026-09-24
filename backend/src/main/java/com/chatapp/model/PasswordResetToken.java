@@ -27,8 +27,14 @@ public class PasswordResetToken {
     @Column(name = "expiry_date", nullable = false)
     private LocalDateTime expiryDate;
 
+    @Column(name = "sent_at")
+    private LocalDateTime sentAt;
+
     @Column(nullable = false)
     @Builder.Default
     private boolean used = false;
-}
 
+    @Column(name = "failed_attempts")
+    @Builder.Default
+    private Integer failedAttempts = 0;
+}

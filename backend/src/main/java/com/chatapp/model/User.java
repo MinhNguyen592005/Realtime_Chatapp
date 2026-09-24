@@ -24,6 +24,9 @@ public class User {
     @Column(nullable = false, unique = true, length = 50)
     private String username;
 
+    @Column(name = "display_name", length = 80)
+    private String displayName;
+
     @JsonIgnore
     @Column(nullable = false, length = 255)
     private String password;
@@ -33,6 +36,9 @@ public class User {
 
     @Column(name = "avatar_url", length = 500)
     private String avatarUrl;
+
+    @Column(length = 500)
+    private String bio;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
@@ -62,4 +68,3 @@ public class User {
         }
     }
 }
-

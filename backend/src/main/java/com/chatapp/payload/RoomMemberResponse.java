@@ -15,10 +15,9 @@ public class RoomMemberResponse {
     private Long id; // RoomMember id
     private Long userId;
     private String username;
-    private String email;
+    private String displayName;
     private String avatarUrl;
     private UserStatus status;
     private RoomRole role;
     private LocalDateTime joinedAt;
 }
-

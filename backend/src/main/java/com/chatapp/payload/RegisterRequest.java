@@ -1,5 +1,6 @@
 package com.chatapp.payload;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -15,16 +16,11 @@ public class RegisterRequest {
     private String username;
 
     @NotBlank(message = "Email không được để trống")
-    @Pattern(
-        regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$",
-        message = "Email không đúng định dạng (ví dụ: user@example.com)"
-    )
+    @Email(regexp = AuthValidation.EMAIL_REGEX, message = "Email không đúng định dạng")
+    @Size(max = 100, message = "Email không được vượt quá 100 ký tự")
     private String email;
 
     @NotBlank(message = "Mật khẩu không được để trống")
-    @Pattern(
-        regexp = "^(?=.*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]).{8,}$",
-        message = "Mật khẩu phải có ít nhất 8 ký tự và chứa ít nhất 1 ký tự đặc biệt (!@#$%^&*...)"
-    )
+    @Pattern(regexp = AuthValidation.PASSWORD_REGEX, message = AuthValidation.PASSWORD_MESSAGE)
     private String password;
 }

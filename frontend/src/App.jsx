@@ -43,18 +43,30 @@ export default function App() {
     setCurrentUser(null);
   };
 
+  const handleProfileUpdated = (profile) => {
+    setCurrentUser((previous) => {
+      const updated = {
+        ...previous,
+        displayName: profile.displayName,
+        avatarUrl: profile.avatarUrl,
+      };
+      localStorage.setItem("user", JSON.stringify(updated));
+      return updated;
+    });
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-950 text-indigo-400">
-        <div className="w-10 h-10 border-4 border-indigo-600/30 border-t-indigo-500 rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-white text-[#c47c68]">
+        <div className="w-10 h-10 border-4 border-[#FEDBD0] border-t-[#c47c68] rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="w-full h-full min-h-screen bg-slate-950">
+    <div className="w-full h-full min-h-screen bg-white">
       {currentUser ? (
-        <ChatDashboard currentUser={currentUser} onLogout={handleLogout} />
+        <ChatDashboard currentUser={currentUser} onLogout={handleLogout} onProfileUpdated={handleProfileUpdated} />
       ) : (
         <AuthPage onAuthSuccess={handleAuthSuccess} />
       )}

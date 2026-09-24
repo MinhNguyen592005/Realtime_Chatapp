@@ -3,10 +3,12 @@ import Sidebar from "./Sidebar";
 import ChatArea from "./ChatArea";
 import RoomDetails from "./RoomDetails";
 import CreateRoomModal from "./CreateRoomModal";
+import ProfilePage from "./ProfilePage";
 import { chatService } from "../../services/chatService";
 import { websocketService } from "../../services/websocket";
+import { DEFAULT_CHAT_APPEARANCE, isHexColor } from "./appearance";
 
-export default function ChatDashboard({ currentUser, onLogout }) {
+export default function ChatDashboard({ currentUser, onLogout, onProfileUpdated }) {
   const [rooms, setRooms] = useState([]);
   const [activeRoomId, setActiveRoomId] = useState(null);
   const [activeRoom, setActiveRoom] = useState(null);
@@ -15,6 +17,54 @@ export default function ChatDashboard({ currentUser, onLogout }) {
   const [showDetails, setShowDetails] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [connected, setConnected] = useState(false);
+  const [profileUserId, setProfileUserId] = useState(null);
+  const appearanceStorageKey = `chat-appearance:${currentUser.id}`;
+  const [roomAppearances, setRoomAppearances] = useState(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem(appearanceStorageKey));
+      return stored && typeof stored === "object" && !Array.isArray(stored)
+        ? stored
+        : {};
+    } catch {
+      return {};
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(appearanceStorageKey, JSON.stringify(roomAppearances));
+    } catch {
+      // Keep the current colors available even when browser storage is disabled.
+    }
+  }, [appearanceStorageKey, roomAppearances]);
+
+  const appearanceRoomId = activeRoom?.id;
+  const savedAppearance = roomAppearances[appearanceRoomId];
+  const appearance = {
+    messageColor: isHexColor(savedAppearance?.messageColor)
+      ? savedAppearance.messageColor
+      : DEFAULT_CHAT_APPEARANCE.messageColor,
+    backgroundColor: isHexColor(savedAppearance?.backgroundColor)
+      ? savedAppearance.backgroundColor
+      : DEFAULT_CHAT_APPEARANCE.backgroundColor,
+  };
+
+  const handleAppearanceChange = (field, color) => {
+    if (!appearanceRoomId || !isHexColor(color)) return;
+    setRoomAppearances((previous) => ({
+      ...previous,
+      [appearanceRoomId]: { ...previous[appearanceRoomId], [field]: color },
+    }));
+  };
+
+  const handleAppearanceReset = () => {
+    if (!appearanceRoomId) return;
+    setRoomAppearances((previous) => {
+      const updated = { ...previous };
+      delete updated[appearanceRoomId];
+      return updated;
+    });
+  };
 
   // Load user's rooms
   const loadRooms = useCallback(async () => {
@@ -168,20 +218,41 @@ export default function ChatDashboard({ currentUser, onLogout }) {
     setShowDetails(false);
   };
 
+  const handleProfileSaved = (profile) => {
+    onProfileUpdated(profile);
+    setMessages((previous) => previous.map((message) =>
+      message.sender?.id === profile.id
+        ? { ...message, sender: { ...message.sender, displayName: profile.displayName, avatarUrl: profile.avatarUrl } }
+        : message,
+    ));
+    loadRooms();
+    if (activeRoomId) {
+      chatService.getRoomDetails(activeRoomId).then(setActiveRoom).catch(console.error);
+    }
+  };
+
   return (
-    <div className="flex h-screen w-screen bg-slate-950 text-slate-100 overflow-hidden font-sans">
+    <div className="flex h-screen w-screen bg-white text-slate-900 overflow-hidden font-sans">
       {/* Left Column: Sidebar */}
       <Sidebar
         currentUser={currentUser}
         rooms={rooms}
         activeRoomId={activeRoomId}
-        onSelectRoom={(id) => setActiveRoomId(id)}
+        onSelectRoom={(id) => { setActiveRoomId(id); setProfileUserId(null); }}
         onOpenCreateModal={() => setIsCreateModalOpen(true)}
+        onOpenProfile={() => setProfileUserId(currentUser.id)}
         onLogout={onLogout}
       />
 
       {/* Center Column: Chat Area */}
-      <ChatArea
+      {profileUserId !== null ? (
+        <ProfilePage
+          userId={profileUserId}
+          currentUser={currentUser}
+          onClose={() => setProfileUserId(null)}
+          onUpdated={handleProfileSaved}
+        />
+      ) : <ChatArea
         activeRoom={activeRoom}
         messages={messages}
         currentUser={currentUser}
@@ -189,16 +260,22 @@ export default function ChatDashboard({ currentUser, onLogout }) {
         onSendMessage={handleSendMessage}
         onToggleDetails={() => setShowDetails(!showDetails)}
         showDetails={showDetails}
-      />
+        appearance={appearance}
+        onOpenProfile={setProfileUserId}
+      />}
 
       {/* Right Column: Room Details (collapsible) */}
-      {showDetails && activeRoom && (
+      {profileUserId === null && showDetails && activeRoom && (
         <RoomDetails
           room={activeRoom}
           currentUser={currentUser}
           onClose={() => setShowDetails(false)}
           onMemberUpdated={handleMemberUpdated}
           onRoomLeft={handleRoomLeft}
+          appearance={appearance}
+          onAppearanceChange={handleAppearanceChange}
+          onAppearanceReset={handleAppearanceReset}
+          onOpenProfile={setProfileUserId}
         />
       )}
 

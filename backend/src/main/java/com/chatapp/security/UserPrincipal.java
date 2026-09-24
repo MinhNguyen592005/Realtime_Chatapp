@@ -19,6 +19,7 @@ public class UserPrincipal implements UserDetails {
 
     private Long id;
     private String username;
+    private String displayName;
     private String email;
     @JsonIgnore
     private String password;
@@ -33,6 +34,7 @@ public class UserPrincipal implements UserDetails {
         return new UserPrincipal(
                 user.getId(),
                 user.getUsername(),
+                user.getDisplayName(),
                 user.getEmail(),
                 user.getPassword(),
                 user.getAvatarUrl(),
@@ -88,4 +90,3 @@ public class UserPrincipal implements UserDetails {
         return Objects.hash(id);
     }
 }
-

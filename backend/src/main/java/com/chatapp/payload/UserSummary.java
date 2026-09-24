@@ -13,9 +13,9 @@ import java.util.Set;
 public class UserSummary {
     private Long id;
     private String username;
+    private String displayName;
     private String email;
     private String avatarUrl;
     private UserStatus status;
     private Set<String> roles;
 }
-

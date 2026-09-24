@@ -12,9 +12,11 @@ CREATE TABLE IF NOT EXISTS roles (
 CREATE TABLE IF NOT EXISTS users (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
+    display_name VARCHAR(80),
     password VARCHAR(255) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
     avatar_url VARCHAR(500),
+    bio VARCHAR(500),
     status VARCHAR(20) DEFAULT 'OFFLINE',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -68,6 +70,7 @@ CREATE TABLE IF NOT EXISTS password_reset_tokens (
     email VARCHAR(100) NOT NULL,
     otp VARCHAR(10) NOT NULL,
     expiry_date TIMESTAMP NOT NULL,
-    used BOOLEAN DEFAULT FALSE
+    sent_at TIMESTAMP NULL,
+    used BOOLEAN DEFAULT FALSE,
+    failed_attempts INT NOT NULL DEFAULT 0
 );
-

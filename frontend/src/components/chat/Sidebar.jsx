@@ -15,6 +15,7 @@ export default function Sidebar({
   activeRoomId,
   onSelectRoom,
   onOpenCreateModal,
+  onOpenProfile,
   onLogout,
   onlineUsers = {},
 }) {
@@ -38,10 +39,11 @@ export default function Sidebar({
   };
 
   return (
-    <div className="w-80 h-full flex flex-col bg-slate-900/90 border-r border-slate-800 text-slate-200 select-none">
+    <div className="w-80 h-full flex flex-col bg-white border-r border-slate-200 text-slate-800 select-none">
       {/* User Profile Header */}
-      <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/60">
-        <div className="flex items-center gap-3 min-w-0">
+      <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-white">
+        <button type="button" onClick={onOpenProfile} title="Xem trang cá nhân"
+          className="flex items-center gap-3 min-w-0 text-left rounded-xl hover:bg-slate-50 transition">
           <div className="relative shrink-0">
             <img
               src={
@@ -49,60 +51,66 @@ export default function Sidebar({
                 `https://api.dicebear.com/7.x/bottts/svg?seed=${currentUser?.username}`
               }
               alt={currentUser?.username}
-              className="w-10 h-10 rounded-full bg-slate-800 border border-slate-700"
+              className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200"
             />
-            <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full ring-2 ring-slate-900" />
+            <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full ring-2 ring-white" />
           </div>
           <div className="truncate">
-            <h3 className="text-sm font-semibold text-white truncate">
-              {currentUser?.username}
+            <h3 className="text-sm font-semibold text-slate-900 truncate">
+              {currentUser?.displayName || currentUser?.username}
             </h3>
-            <p className="text-xs text-emerald-400 flex items-center gap-1">
+            <p className="text-xs text-emerald-700 flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />{" "}
               Online
             </p>
           </div>
-        </div>
-
-        <button
-          onClick={onLogout}
-          title="Log out"
-          className="p-2 rounded-xl text-slate-400 hover:text-red-400 hover:bg-slate-800/80 transition"
-        >
-          <LogOut className="w-4 h-4" />
         </button>
+
+        <div className="flex items-center gap-1 shrink-0">
+          <button type="button" onClick={onOpenProfile} title="Trang cá nhân" aria-label="Trang cá nhân"
+            className="p-2 rounded-xl text-slate-500 hover:text-[#a6533e] hover:bg-slate-100 transition">
+            <User className="w-4 h-4" />
+          </button>
+          <button
+            onClick={onLogout}
+            title="Log out"
+            className="p-2 rounded-xl text-slate-500 hover:text-red-600 hover:bg-slate-100 transition"
+          >
+            <LogOut className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       {/* Search & New Room Button */}
-      <div className="p-3 border-b border-slate-800 space-y-2">
+      <div className="p-3 border-b border-slate-200 space-y-2">
         <div className="flex gap-2">
           <div className="relative flex-1">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search conversations..."
-              className="w-full pl-9 pr-3 py-1.5 bg-slate-800/80 border border-slate-700/80 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+              className="w-full pl-9 pr-3 py-1.5 bg-white border border-slate-300 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#c47c68]"
             />
           </div>
           <button
             onClick={onOpenCreateModal}
             title="Create room or chat"
-            className="p-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl shadow-sm transition"
+            className="p-2 bg-[#FEDBD0] hover:bg-[#f4c5b6] text-slate-900 rounded-xl shadow-sm transition"
           >
             <Plus className="w-4 h-4" />
           </button>
         </div>
 
         {/* Filter Pills */}
-        <div className="flex bg-slate-800/60 p-0.5 rounded-lg text-xs">
+        <div className="flex bg-slate-100 p-0.5 rounded-lg text-xs">
           <button
             onClick={() => setFilterTab("ALL")}
             className={`flex-1 py-1 rounded-md transition ${
               filterTab === "ALL"
-                ? "bg-indigo-600 text-white font-medium shadow-sm"
-                : "text-slate-400 hover:text-white"
+                ? "bg-[#FEDBD0] text-slate-900 font-medium shadow-sm"
+                : "text-slate-500 hover:text-slate-900"
             }`}
           >
             All
@@ -111,8 +119,8 @@ export default function Sidebar({
             onClick={() => setFilterTab("DIRECT")}
             className={`flex-1 py-1 rounded-md transition ${
               filterTab === "DIRECT"
-                ? "bg-indigo-600 text-white font-medium shadow-sm"
-                : "text-slate-400 hover:text-white"
+                ? "bg-[#FEDBD0] text-slate-900 font-medium shadow-sm"
+                : "text-slate-500 hover:text-slate-900"
             }`}
           >
             Direct
@@ -121,8 +129,8 @@ export default function Sidebar({
             onClick={() => setFilterTab("GROUP")}
             className={`flex-1 py-1 rounded-md transition ${
               filterTab === "GROUP"
-                ? "bg-indigo-600 text-white font-medium shadow-sm"
-                : "text-slate-400 hover:text-white"
+                ? "bg-[#FEDBD0] text-slate-900 font-medium shadow-sm"
+                : "text-slate-500 hover:text-slate-900"
             }`}
           >
             Groups
@@ -141,6 +149,7 @@ export default function Sidebar({
           filteredRooms.map((room) => {
             const isActive = room.id === activeRoomId;
             const isGroup = room.type === "GROUP";
+            const otherMember = isGroup ? null : room.members?.find((member) => member.userId !== currentUser.id);
 
             return (
               <div
@@ -148,20 +157,20 @@ export default function Sidebar({
                 onClick={() => onSelectRoom(room.id)}
                 className={`p-2.5 rounded-xl cursor-pointer transition flex items-center gap-3 relative ${
                   isActive
-                    ? "bg-indigo-600/25 border border-indigo-500/50 text-white"
-                    : "hover:bg-slate-800/60 border border-transparent text-slate-300"
+                    ? "bg-[#FEDBD0] border border-[#f4c5b6] text-slate-900"
+                    : "hover:bg-slate-50 border border-transparent text-slate-700"
                 }`}
               >
                 {/* Room Avatar */}
                 <div className="relative shrink-0">
                   {isGroup ? (
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow">
+                    <div className="w-10 h-10 rounded-full bg-[#FEDBD0] flex items-center justify-center text-slate-800 shadow-sm">
                       <Users className="w-5 h-5" />
                     </div>
                   ) : (
-                    <div className="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 overflow-hidden flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center">
                       <img
-                        src={`https://api.dicebear.com/7.x/bottts/svg?seed=${room.name}`}
+                        src={otherMember?.avatarUrl || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(otherMember?.username || room.name)}`}
                         alt={room.name}
                         className="w-full h-full object-cover"
                       />
@@ -172,21 +181,21 @@ export default function Sidebar({
                 {/* Details */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-0.5">
-                    <h4 className="text-sm font-semibold truncate text-white">
+                    <h4 className="text-sm font-semibold truncate text-slate-900">
                       {room.name || (isGroup ? "Group Chat" : "Direct Chat")}
                     </h4>
                     {room.lastMessage && (
-                      <span className="text-[10px] text-slate-400 shrink-0 ml-1">
+                      <span className="text-[10px] text-slate-500 shrink-0 ml-1">
                         {formatTime(room.lastMessage.createdAt)}
                       </span>
                     )}
                   </div>
 
-                  <p className="text-xs text-slate-400 truncate">
+                  <p className="text-xs text-slate-500 truncate">
                     {room.lastMessage ? (
                       <span>
                         {room.lastMessage.sender?.username ? (
-                          <span className="text-slate-300 font-medium">
+                          <span className="text-slate-700 font-medium">
                             {room.lastMessage.sender.username}:{" "}
                           </span>
                         ) : null}
